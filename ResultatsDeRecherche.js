@@ -18,13 +18,13 @@ export default class ResultatsDeRecherche extends Component<Props> {
       onPressItem={this._itemAppuye}
       />
     )
-  _itemAppuye=(index)=>{
+  _itemAppuye=(index, url)=>{
     console.log('Ligne appuyée: '+index)
+    if(url) this.props.navigation.navigate('Map', { url: url });
   }
 
   render(){
-    console.log(this.props.route.params);
-    const {listing} = this.props.route.params
+    const { listing } = this.props.route.params;
     return (
       <FlatList
       data={listing}
@@ -42,7 +42,14 @@ const styles = StyleSheet.create({
     height:1,
     backgroundColor:'#eedded'
   },
+  image: {
+      width: 50,
+      height: 50,
+      borderRadius: 10,
+      marginRight: 8,
+    },
   nomOfficiel:{
+    marginLeft: 5,
     fontSize:25,
     fontWeight:'bold',
     color:'#58BEEC'
@@ -59,7 +66,7 @@ const styles = StyleSheet.create({
 
 class ListItem extends React.PureComponent{
   _itemAppuye=()=>{
-    this.props.onPressItem(this.props.index)
+    this.props.onPressItem(this.props.index, this.props.item.maps.googleMaps)
   }
   render(){
     const item=this.props.item;
@@ -68,9 +75,15 @@ class ListItem extends React.PureComponent{
       onPress={this._itemAppuye}
       underlayColor='#eedddd'>
         <View>
+        <Text style={styles.nomOfficiel}>{item.name.official}</Text>
           <View style={styles.conteneurLigne}>
+
+            <Image
+            style={styles.image}
+            source={{ uri: item.flags.png }}
+            />
             <View style={styles.conteneurTexte}>
-              <Text style={styles.nomOfficiel}>{item.name.official}</Text>
+
               <Text style={styles.autre}>{item.region}</Text>
               <Text style={styles.autre}>{item.subregion}</Text>
               <Text style={styles.autre}>{item.capital}</Text>
