@@ -61,6 +61,7 @@ export class PageDeRecherche extends Component {
 
   _gererLaReponse = (reponse)=>{
     this.props.changeChargementState(false);
+    this.props.getResponce('')
     this.props.navigation.navigate('Resultats',{listing:reponse})
   }
 
@@ -74,6 +75,7 @@ export class PageDeRecherche extends Component {
        .then((results) => {
          const flattenedResults = results.flat();
          this.props.changeChargementState(false);
+         this.props.getResponce('')
          this.props.navigation.navigate('Resultats', { listing: flattenedResults });
        })
        .catch((error) =>{
