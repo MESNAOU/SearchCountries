@@ -13,30 +13,17 @@ import { ChangementDeLaRecherche, ChangementDeLaTaille, changeChargementState, g
 
 type Props ={}
 
-export default class PageDeRecherche extends Component<Props> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      requeteDeRecherche:'morocco',
-      taille: '0',
-      estEnChargement:false,
-      message:'',
-    }
-  }
+export class PageDeRecherche extends Component {
   _auChangementDeLaRecherche = (event)=>{
-    this.setState({
-      requeteDeRecherche:event.nativeEvent.text
-    })
+    this.props.ChangementDeLaRecherche(event.nativeEvent.text);
   }
 
   _auChangementDeLaTaille = (event)=>{
-      this.setState({
-        taille:event.nativeEvent.text
-      })
+      this.props.ChangementDeLaTaille(event.nativeEvent.text);
     }
 
   _auDemarrageDeLaRecherche=()=>{
-      const requete =urlPourRequete(this.state.requeteDeRecherche);
+      const requete =urlPourRequete(this.props.requeteDeRecherche);
       this._executeRequete(requete);
     }
 
@@ -46,38 +33,34 @@ export default class PageDeRecherche extends Component<Props> {
       }
 
   _executeRequete = (requete)=>{
-    this.setState({ estEnChargement:true });
+    this.props.changeChargementState(true);
     fetch(requete)
      .then((reponse) => reponse.json())
      .then(json =>this._gererLaReponse(json))
-     .catch(error=>
-      this.setState({
-        estEnChargement:false,
-        message:'Oups! Une erreur'+error
-      }))
+     .catch(error=> {
+       this.props.changeChargementState(false);
+       this.props.getResponce('Oups! Une erreur: ' + error)
+     })
   }
 
   _executeRequeteParTaille = (requete)=>{
-      this.setState({ estEnChargement:true });
+      this.props.changeChargementState(true);
       fetch(requete)
        .then((reponse) => reponse.json())
        .then(json =>this._gererLaReponseParTaille(json))
-       .catch(error=>
-        this.setState({
-          estEnChargement:false,
-          message:'Oups! Une erreur'+error
-        }))
+       .catch(error=>{
+         this.props.changeChargementState(false);
+         this.props.getResponce('Oups! Une erreur: ' + error)
+       })
     }
 
   _gererLaReponse = (reponse)=>{
-    this.setState({
-      estEnChargement:false,message:''
-    });
+    this.props.changeChargementState(false);
     this.props.navigation.navigate('Resultats',{listing:reponse})
   }
 
   _gererLaReponseParTaille = (reponse)=>{
-      const filteredReponse = reponse.filter((element) => element.population <= this.state.taille);
+      const filteredReponse = reponse.filter((element) => element.population <= this.props.taille);
       const requests = filteredReponse.map((item)=>{
         const req = urlPourRequete(item.name.common);
         return fetch(req).then((rep) => rep.json());
@@ -85,22 +68,17 @@ export default class PageDeRecherche extends Component<Props> {
       Promise.all(requests)
        .then((results) => {
          const flattenedResults = results.flat();
-         this.setState({
-           estEnChargement: false,
-           message: '',
-         });
+         this.props.changeChargementState(false);
          this.props.navigation.navigate('Resultats', { listing: flattenedResults });
        })
-       .catch((error) =>
-         this.setState({
-           estEnChargement: false,
-           message: 'Oups! Une erreur: ' + error,
-         })
-       );
+       .catch((error) =>{
+         this.props.changeChargementState(false);
+         this.props.getResponce('Oups! Une erreur: ' + error)
+       });
   }
 
   render(){
-    const indicateurDeChangement=this.state.estEnChargement? <ActivityIndicator size='large' color='0000ff'/> : null;
+    const indicateurDeChangement=this.props.estEnChargement? <ActivityIndicator size='large' color='0000ff'/> : null;
     return (
       <View style={styles.conteneur}>
         <Text style={styles.description}>
@@ -113,7 +91,7 @@ export default class PageDeRecherche extends Component<Props> {
           <TextInput
           underlineColorAndroid={'transparent'}
           style={styles.requeteEntree}
-          value={this.state.requeteDeRecherche}
+          value={this.props.requeteDeRecherche}
           onChange={this._auChangementDeLaRecherche}
           placeholder='Rechercher par nom de pays'/>
           <Button
@@ -129,7 +107,7 @@ export default class PageDeRecherche extends Component<Props> {
           <TextInput
           underlineColorAndroid={'transparent'}
           style={styles.requeteEntree}
-          value={this.state.taille}
+          value={this.props.taille}
           onChange={this._auChangementDeLaTaille}
           placeholder='Rechercher par taille'/>
             <Button
@@ -140,7 +118,7 @@ export default class PageDeRecherche extends Component<Props> {
         </View>
         <Image source= {require('./Ressources/pays.png')} style={styles.image}/>
         {indicateurDeChangement}
-        <Text style={styles.description}>{this.state.message}</Text>
+        <Text style={styles.description}>{this.props.message}</Text>
       </View>
     );
   }
@@ -190,3 +168,19 @@ const styles = StyleSheet.create({
     height:140,
   },
 });
+
+const mapStateToProps = (state) => ({
+  requeteDeRecherche: state.requeteDeRecherche,
+  taille: state.taille,
+  estEnChargement: state.estEnChargement,
+  message: state.message,
+});
+
+const mapDispatchToProps = {
+  ChangementDeLaRecherche,
+  ChangementDeLaTaille,
+  changeChargementState,
+  getResponce,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PageDeRecherche);

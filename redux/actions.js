@@ -8,11 +8,12 @@ export const ChangementDeLaTaille = (taille) => ({
   payload: taille,
 });
 
-export const changeChargementState = () => ({  //estEnChargement toujours true
+export const changeChargementState = (state) => ({
   type: 'changeChargementState',
+  payload: state,
 });
 
-export const getResponce = (message) => ({  ///estEnChargement toujours false
+export const getResponce = (message) => ({
   type: 'getResponce',
   payload: message,
 });

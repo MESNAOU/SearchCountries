@@ -22,13 +22,11 @@ const Pile = createStackNavigator();
 export default class App extends Component<Props>{
   render(){
     return (
-      <React.StrictMode>
       <NavigationContainer>
       <Provider store={ store }>
         <MaPile/>
       </Provider>
       </NavigationContainer>
-      </React.StrictMode>
     )
   }
 }

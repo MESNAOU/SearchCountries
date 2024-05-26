@@ -20,12 +20,11 @@ const rootReducer = (state = initialState, action) => {
     case 'changeChargementState':
       return {
         ...state,
-        estEnChargement: true,
+        estEnChargement: action.payload,
       };
     case 'getResponce':
       return {
         ...state,
-        estEnChargement: false,
         taille: action.payload,
       };
     default:
