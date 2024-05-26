@@ -25,7 +25,7 @@ const rootReducer = (state = initialState, action) => {
     case 'getResponce':
       return {
         ...state,
-        taille: action.payload,
+        message: action.payload,
       };
     default:
       return state;

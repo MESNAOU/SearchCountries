@@ -11,6 +11,7 @@ import {
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { ChangementDeLaRecherche, ChangementDeLaTaille, changeChargementState, getResponce } from './redux/actions';
+import { IP } from '@env';
 
 type Props ={}
 
@@ -29,7 +30,8 @@ export class PageDeRecherche extends Component {
     }
 
   _auDemarrageDeLaRechercheParTaille=()=>{
-        const requete ='https://restcountries.com/v3.1/all?fields=name,population';
+        //const requete ='https://restcountries.com/v3.1/all?fields=name,population';
+        const requete ='http://'+IP+':3000/api/pays/';
         this._executeRequeteParTaille(requete);
       }
 
@@ -128,7 +130,8 @@ export class PageDeRecherche extends Component {
 }
 
 function urlPourRequete(valeur){
-  return 'https://restcountries.com/v3.1/name/'+valeur+'?fields=name,flags,region,subregion,capital,population,maps';
+  //return 'https://restcountries.com/v3.1/name/'+valeur+'?fields=name,flags,region,subregion,capital,population,maps';
+  return 'http://'+IP+':3000/api/pays/'+valeur;
 }
 
 const styles = StyleSheet.create({
