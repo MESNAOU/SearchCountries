@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
+import axios from 'axios';
 import { connect } from 'react-redux';
 import { ChangementDeLaRecherche, ChangementDeLaTaille, changeChargementState, getResponce } from './redux/actions';
 
@@ -32,26 +33,28 @@ export class PageDeRecherche extends Component {
         this._executeRequeteParTaille(requete);
       }
 
-  _executeRequete = (requete)=>{
+  _executeRequete = (requete) => {
     this.props.changeChargementState(true);
-    fetch(requete)
-     .then((reponse) => reponse.json())
-     .then(json =>this._gererLaReponse(json))
-     .catch(error=> {
-       this.props.changeChargementState(false);
-       this.props.getResponce('Oups! Une erreur: ' + error)
-     })
-  }
+    axios.get(requete)
+      .then((response) => {
+        this._gererLaReponse(response.data);
+      })
+      .catch((error) => {
+        this.props.changeChargementState(false);
+        this.props.getResponce('Oups! Une erreur: ' + error.message);
+      });
+  };
 
   _executeRequeteParTaille = (requete)=>{
       this.props.changeChargementState(true);
-      fetch(requete)
-       .then((reponse) => reponse.json())
-       .then(json =>this._gererLaReponseParTaille(json))
-       .catch(error=>{
-         this.props.changeChargementState(false);
-         this.props.getResponce('Oups! Une erreur: ' + error)
-       })
+      axios.get(requete)
+      .then((response) => {
+        this._gererLaReponseParTaille(response.data);
+      })
+      .catch((error) => {
+        this.props.changeChargementState(false);
+        this.props.getResponce('Oups! Une erreur: ' + error.message);
+      });
     }
 
   _gererLaReponse = (reponse)=>{
@@ -63,7 +66,7 @@ export class PageDeRecherche extends Component {
       const filteredReponse = reponse.filter((element) => element.population <= this.props.taille);
       const requests = filteredReponse.map((item)=>{
         const req = urlPourRequete(item.name.common);
-        return fetch(req).then((rep) => rep.json());
+        return axios.get(req).then((rep) => rep.data);
       });
       Promise.all(requests)
        .then((results) => {

@@ -78,10 +78,8 @@ class ListItem extends React.PureComponent{
         <Text style={styles.nomOfficiel}>{item.name.official}</Text>
           <View style={styles.conteneurLigne}>
 
-            <Image
-            style={styles.image}
-            source={{ uri: item.flags.png }}
-            />
+            <Image style={styles.image} source={{ uri: item.flags.png }} />
+
             <View style={styles.conteneurTexte}>
 
               <Text style={styles.autre}>{item.region}</Text>
