@@ -7,20 +7,33 @@ import {
   Button,
   ActivityIndicator,
   Image,
+  NativeSyntheticEvent,
+  TextInputChangeEventData,
 } from 'react-native';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { ChangementDeLaRecherche, ChangementDeLaTaille, changeChargementState, getResponce } from './redux/actions';
-import { IP } from '@env';
+import { RootState } from './redux/store';
+import { NavigationProp } from '@react-navigation/native';
 
-type Props ={}
+type Props ={
+  requeteDeRecherche: string;
+  taille: string;
+  estEnChargement: boolean;
+  message: string;
+  ChangementDeLaRecherche: (text: string) => void;
+  ChangementDeLaTaille: (text: string) => void;
+  changeChargementState: (state: boolean) => void;
+  getResponce: (message: string) => void;
+  navigation: NavigationProp<any>;
+};
 
-export class PageDeRecherche extends Component {
-  _auChangementDeLaRecherche = (event)=>{
+class PageDeRecherche extends Component<Props> {
+  _auChangementDeLaRecherche = (event: NativeSyntheticEvent<TextInputChangeEventData>)=>{
     this.props.ChangementDeLaRecherche(event.nativeEvent.text);
   }
 
-  _auChangementDeLaTaille = (event)=>{
+  _auChangementDeLaTaille = (event: NativeSyntheticEvent<TextInputChangeEventData>)=>{
       this.props.ChangementDeLaTaille(event.nativeEvent.text);
     }
 
@@ -30,12 +43,11 @@ export class PageDeRecherche extends Component {
     }
 
   _auDemarrageDeLaRechercheParTaille=()=>{
-        //const requete ='https://restcountries.com/v3.1/all?fields=name,population';
-        const requete ='http://'+IP+':3000/api/pays/';
+        const requete ='https://restcountries.com/v3.1/all?fields=name,population';
         this._executeRequeteParTaille(requete);
       }
 
-  _executeRequete = (requete) => {
+  _executeRequete = (requete: string) => {
     this.props.changeChargementState(true);
     axios.get(requete)
       .then((response) => {
@@ -47,7 +59,7 @@ export class PageDeRecherche extends Component {
       });
   };
 
-  _executeRequeteParTaille = (requete)=>{
+  _executeRequeteParTaille = (requete: string)=>{
       this.props.changeChargementState(true);
       axios.get(requete)
       .then((response) => {
@@ -59,15 +71,14 @@ export class PageDeRecherche extends Component {
       });
     }
 
-  _gererLaReponse = (reponse)=>{
+  _gererLaReponse = (reponse: any)=>{
     this.props.changeChargementState(false);
-    this.props.getResponce('')
     this.props.navigation.navigate('Resultats',{listing:reponse})
   }
 
-  _gererLaReponseParTaille = (reponse)=>{
-      const filteredReponse = reponse.filter((element) => element.population <= this.props.taille);
-      const requests = filteredReponse.map((item)=>{
+  _gererLaReponseParTaille = (reponse: any)=>{
+      const filteredReponse = reponse.filter((element: any) => element.population <= this.props.taille);
+      const requests = filteredReponse.map((item: any)=>{
         const req = urlPourRequete(item.name.common);
         return axios.get(req).then((rep) => rep.data);
       });
@@ -75,7 +86,6 @@ export class PageDeRecherche extends Component {
        .then((results) => {
          const flattenedResults = results.flat();
          this.props.changeChargementState(false);
-         this.props.getResponce('')
          this.props.navigation.navigate('Resultats', { listing: flattenedResults });
        })
        .catch((error) =>{
@@ -131,9 +141,8 @@ export class PageDeRecherche extends Component {
   }
 }
 
-function urlPourRequete(valeur){
-  //return 'https://restcountries.com/v3.1/name/'+valeur+'?fields=name,flags,region,subregion,capital,population,maps';
-  return 'http://'+IP+':3000/api/pays/'+valeur;
+function urlPourRequete(valeur: string){
+  return 'https://restcountries.com/v3.1/name/'+valeur+'?fields=name,flags,region,subregion,capital,population,maps';
 }
 
 const styles = StyleSheet.create({
@@ -177,7 +186,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   requeteDeRecherche: state.requeteDeRecherche,
   taille: state.taille,
   estEnChargement: state.estEnChargement,
